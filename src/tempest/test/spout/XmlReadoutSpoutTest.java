@@ -1,4 +1,4 @@
-package tempest.spout;
+package tempest.test.spout;
 
 import java.io.*;
 import java.util.Map;
@@ -22,28 +22,21 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.Util.Utils;
 
-public class XmlReadoutSpoutTest {
+import tempest.spout.XmlReadoutSpout;
+
+public class XmlReadoutSpoutTest extends XmlReadoutSpout {
     private SpoutOutputCollector _collector;
     private List<String> _tagTextList;
     private Random _rand;
 
-    /**
-     * parse xml file
-     * @param String the name of the xml file
-     * @return Document the content of xml
-     */
+    @Override
     protected Document _parseXml(String filename) {
         DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = dbfactory.newDocumentBuilder();
         return builder.parse(new File(filename));
     }
 
-    /**
-     * get text list at the tag the user designates
-     * @param Document the content of xml
-     * @param String the name of the xml file
-     * @return List<String> the tag text list
-     */
+    @Override
     protected List<String> _getTagTextList(Document xmlDocumentContent, String tagPath) {
         XPathFactory xpathFactory= XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
@@ -62,7 +55,7 @@ public class XmlReadoutSpoutTest {
      * @param String the name of the xml file
      * @return void
      */
-    public XmlReadoutSpout() {
+    public XmlReadoutSpoutTest() {
         _rand = new Random();
 
         Document xmlDocumentContent = _parseXml("../data/medline00015.xml");
@@ -70,28 +63,20 @@ public class XmlReadoutSpoutTest {
         _tagTextList = _getTagTextList(xmlDocumentContent, tagPath);
     }
 
-    @Override
-    public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        _collector = collector;
+    /**
+     * constructor
+     * @param String the name of the xml file
+     * @return void
+     */
+    public void getTagTextList() {
+        System.out.println(_tagTextList.size());
+        for(String tagText : _tagTextList) {
+            System.out.println(tagText);
+        }
     }
 
-    @Override
-    public void nextTuple() {
-        Utils.sleep(100);
-        String sentence = _tagTextList.get( _rand.nextInt( _tagTextList.size() ) );
-        _collector.emit(new Vaules(sentence));
-    }
-
-    @Override
-    public void ack(Object id) {
-    }
-
-    @Override
-    public void fail(Object id) {
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare();
+    public static void main(String[] args) {
+        XmlReadoutSpoutTest xrstest = new XmlReadoutSpoutTest();
+        xrstest.getTagTextList();
     }
 }
