@@ -17,12 +17,13 @@ import org.w3c.dom.NodeList;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.Util.Utils;
 
-public class XmlReadoutSpout extends BaseRichBolt {
+public class XmlReadoutSpout extends BaseRichSpout {
+
     private SpoutOutputCollector _collector;
     private List<String> _tagTextList;
     private Random _rand;
@@ -53,7 +54,6 @@ public class XmlReadoutSpout extends BaseRichBolt {
         for(int i=0; i<entries.getLength(); i++) {
             list.add( entries.item(i).getNodeValue() );
         }
-        System.out.println(list.size());
         return list;
     }
 
@@ -79,7 +79,8 @@ public class XmlReadoutSpout extends BaseRichBolt {
     public void nextTuple() {
         Utils.sleep(100);
         String sentence = _tagTextList.get( _rand.nextInt( _tagTextList.size() ) );
-        _collector.emit(new Vaules(sentence));
+        // TODO: このemitはISpoutOutputDeclarerのメソッド呼び出しか？？？
+        _collector.emit( streamdId="xml", tuple=new Values(sentence), messageId="parsed_xml" );
     }
 
     @Override
@@ -92,6 +93,6 @@ public class XmlReadoutSpout extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare();
+        declarer.declare(new Fields("word"));
     }
 }
