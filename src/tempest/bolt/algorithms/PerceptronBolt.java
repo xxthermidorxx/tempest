@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
-public class Perceptron {
+public class PerceptronBolt {
 
     private int _dataSize;
     private int _dimension;
