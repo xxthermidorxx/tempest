@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
-import tempest.org.msgpack.MessagePack;
-
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -18,7 +16,6 @@ import backtype.storm.tuple.Values;
 public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     protected HashSet<String> _allWordSet;
-    protected MessagePack _msgpack;
 
     /**
      * constructor
@@ -26,7 +23,6 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
      */
     public ExtractFeatureVectorBolt() {
         _allWordSet = new HashSet<String>();
-        _msgpack = new MessagePack();
     }
 
     /**
@@ -56,13 +52,7 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        byte[] serializedSplittedSentence = tuple.getBinary(0);
-        String[] splittedSentence = {};
-        try {
-            splittedSentence = _msgpack.read(serializedSplittedSentence, String[].class);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+        String[] splittedSentence = (String[])tuple.getValue(0);
         __addWordToWordSet(splittedSentence);
         int[] featureVector = __getFeatureVector(splittedSentence);
         System.out.println(featureVector);
