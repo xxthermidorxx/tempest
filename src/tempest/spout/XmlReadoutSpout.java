@@ -20,7 +20,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import backtype.storm.Util.Utils;
+import backtype.storm.utils.Utils;
 
 public class XmlReadoutSpout extends BaseRichSpout {
 
@@ -33,7 +33,7 @@ public class XmlReadoutSpout extends BaseRichSpout {
      * @param String the name of the xml file
      * @return Document the content of xml
      */
-    protected Document _parseXml(String filename) {
+    protected Document _parseXml(String filename) throws Exception {
         DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = dbfactory.newDocumentBuilder();
         return builder.parse(new File(filename));
@@ -45,7 +45,7 @@ public class XmlReadoutSpout extends BaseRichSpout {
      * @param String the name of the xml file
      * @return List<String> the tag text list
      */
-    protected List<String> _getTagTextList(Document xmlDocumentContent, String tagPath) {
+    protected List<String> _getTagTextList(Document xmlDocumentContent, String tagPath) throws Exception {
         XPathFactory xpathFactory= XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
         NodeList entries = (NodeList) xpath.evaluate(tagPath, xmlDocumentContent, XPathConstants.NODESET);
@@ -62,10 +62,10 @@ public class XmlReadoutSpout extends BaseRichSpout {
      * @param String the name of the xml file
      * @return void
      */
-    public XmlReadoutSpout() {
+    public XmlReadoutSpout() throws Exception {
         _rand = new Random();
 
-        Document xmlDocumentContent = _parseXml("../data/medline00015.xml");
+        Document xmlDocumentContent = _parseXml("tempest/data/medline00015.xml");
         String tagPath = "/MedlineCitationSet/MedlineCitation/Article/ArticleTitle";
         _tagTextList = _getTagTextList(xmlDocumentContent, tagPath);
     }
@@ -80,7 +80,7 @@ public class XmlReadoutSpout extends BaseRichSpout {
         Utils.sleep(100);
         String sentence = _tagTextList.get( _rand.nextInt( _tagTextList.size() ) );
         // TODO: このemitはISpoutOutputDeclarerのメソッド呼び出しか？？？
-        _collector.emit( streamdId="xml", tuple=new Values(sentence), messageId="parsed_xml" );
+        _collector.emit( /*streamdId=*/"xml", /*tuple=*/new Values(sentence), /*messageId=*/"parsed_xml" );
     }
 
     @Override

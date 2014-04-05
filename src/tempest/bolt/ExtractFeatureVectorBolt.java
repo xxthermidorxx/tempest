@@ -6,23 +6,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
-import backtype.storm.topology.base.BaseRichBolt;
+import tempest.org.msgpack.MessagePack;
+
+import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class ExtractFeatureVector extends BaseRichBolt {
+public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
-    private HashSet<String> _allWordSet;
+    protected HashSet<String> _allWordSet;
+    protected MessagePack _msgpack;
 
     /**
      * constructor
      * @param void
      */
-    public ExtractFeatureVector() {
+    public ExtractFeatureVectorBolt() {
         _allWordSet = new HashSet<String>();
+        _msgpack = new MessagePack();
     }
 
     /**
@@ -51,10 +55,17 @@ public class ExtractFeatureVector extends BaseRichBolt {
     }
 
     @Override
-    public void excute(Tuple tuple, BasicOutputCollector collector) {
-        String[] splittedSentence = tuple.getString(0);
+    public void execute(Tuple tuple, BasicOutputCollector collector) {
+        byte[] serializedSplittedSentence = tuple.getBinary(0);
+        String[] splittedSentence = {};
+        try {
+            splittedSentence = _msgpack.read(serializedSplittedSentence, String[].class);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
         __addWordToWordSet(splittedSentence);
         int[] featureVector = __getFeatureVector(splittedSentence);
+        System.out.println(featureVector);
 
         collector.emit(new Values(featureVector, _allWordSet));
     }

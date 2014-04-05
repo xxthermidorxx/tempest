@@ -1,13 +1,17 @@
 package tempest.algorithms;
 
-import tempest.XmlParser.XmlParserByXpath;
-import tempest.FeatureExtraction;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
-public class PerceptronBolt {
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.topology.BasicOutputCollector;
+import backtype.storm.topology.OutputFieldsDeclarer;
+
+import tempest.FeatureExtraction;
+
+public class PerceptronBolt extends BaseRichBolt {
 
     private int _dataSize;
     private int _dimension;
@@ -20,7 +24,7 @@ public class PerceptronBolt {
      * @param List<int[]> featureVectorList
      * @return void
      */
-    public Perceptron(List<int[]> featureVectorList) {
+    public PerceptronBolt(List<int[]> featureVectorList) {
         _dataSize = featureVectorList.length();
         _dimension = featureVectorList.get(0).length;
         _featureVectorList = featureVectorList;
@@ -76,19 +80,17 @@ public class PerceptronBolt {
         return;
     }
 
-    public int[] getWeightVector() {
-        return _weightVector;
+    @Override
+    public void excute(Tuple tuple, BasicOutputCollector collector) {
+        List<Objec>tuple.getValues();
     }
 
-    public static void main(String[] args) throws Exception {
-        XmlParserByXpath xp = new XmlParserByXpath("tempest/data/medline00015.xml");
-        List<String> stringList = xp.parseXmlByJavaxXpath();
-        List<String[]> splittedSentenceList = FeatureExtraction.splitSentence(stringList);
-        HashSet<String> allWordSet = FeatureExtraction.getAllWordSet(splittedSentenceList);
-        for(int[] featureVector : FeatureExtraction.getFeatureVector(splittedSentenceList, allWordSet)) {
-            for (int i=0; i<featureVector.length; i++){
-                System.out.println(featureVector[i]);
-            }
-        }
+    @Override
+    public Map<String, Object> getComponentConfiguration() {
+        return null;
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
     }
 }
