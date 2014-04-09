@@ -66,7 +66,7 @@ public class XmlReadoutSpout extends BaseRichSpout {
         _rand = new Random();
 
         Document xmlDocumentContent = _parseXml("tempest/data/medline00015.xml");
-        String tagPath = "/MedlineCitationSet/MedlineCitation/Article/ArticleTitle";
+        String tagPath = "/MedlineCitationSet/MedlineCitation/Article/ArticleTitle/text()";
         _tagTextList = _getTagTextList(xmlDocumentContent, tagPath);
     }
 
@@ -80,7 +80,7 @@ public class XmlReadoutSpout extends BaseRichSpout {
         Utils.sleep(100);
         String sentence = _tagTextList.get( _rand.nextInt( _tagTextList.size() ) );
         // TODO: このemitはISpoutOutputDeclarerのメソッド呼び出しか？？？
-        _collector.emit( /*streamdId=*/"xml", /*tuple=*/new Values(sentence), /*messageId=*/"parsed_xml" );
+        _collector.emit( /*streamdId="xml", tuple=*/new Values(sentence) /*messageId="parsed_xml"*/ );
     }
 
     @Override
