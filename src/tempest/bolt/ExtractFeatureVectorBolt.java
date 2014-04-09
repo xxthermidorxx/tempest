@@ -29,10 +29,10 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     /**
      * add word to _allWordSet
-     * @param String[] splitted sentence
+     * @param List<String> splitted sentence
      * @return void
      */
-    private void __addWordToWordSet(String[] splittedSentence) {
+    private void __addWordToWordSet(List<String> splittedSentence) {
         for(String word : splittedSentence) {
             _allWordSet.add(word);
         }
@@ -55,10 +55,11 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        String[] splittedSentence = (String[]) tuple.getValue(0);
+        /** HACK: 無検査変換 */
+        List<String> splittedSentence = (ArrayList) tuple.getValue(0);
+
         __addWordToWordSet(splittedSentence);
-        HashMap<String, Integer> featureVector = __getFeatureVector( Arrays.asList(splittedSentence));
-        System.out.println(featureVector);
+        HashMap<String, Integer> featureVector = __getFeatureVector( splittedSentence);
 
         collector.emit(new Values(featureVector));
     }
