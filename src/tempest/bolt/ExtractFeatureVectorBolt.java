@@ -2,9 +2,11 @@ package tempest.bolt;
 
 import java.io.*;
 import java.util.Map;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.BasicOutputCollector;
@@ -15,14 +17,14 @@ import backtype.storm.tuple.Values;
 
 public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
-    protected HashSet<String> _allWordSet;
+    protected LinkedHashSet<String> _allWordSet;
 
     /**
      * constructor
      * @param void
      */
     public ExtractFeatureVectorBolt() {
-        _allWordSet = new HashSet<String>();
+        _allWordSet = new LinkedHashSet<String>();
     }
 
     /**
@@ -38,26 +40,27 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     /**
      * get the feature vector
-     * @param String[] splitted sentence
-     * @return int[] featureVector
+     * @param List<String> splitted sentence
+     * @return HashMap<String, Integer> featureVector
      */
-    private int[] __getFeatureVector(String[] splittedSentence) {
-        int length = splittedSentence.length;
-        int[] featureVector = new int[ length ];
-        for(int i=0; i<length; i++) {
-            featureVector[i] = ( _allWordSet.contains(splittedSentence[i]) ) ? 1 : 0;
+    private HashMap<String, Integer> __getFeatureVector(List<String> splittedSentenceList) {
+        HashMap<String, Integer> featureVector = new HashMap<>();
+        for(String word : new ArrayList<>(_allWordSet)) {
+            int isExist = splittedSentenceList.contains(word) ? 1 : 0;
+            featureVector.put(word, isExist);
         }
+
         return featureVector;
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        String[] splittedSentence = (String[])tuple.getValue(0);
+        String[] splittedSentence = (String[]) tuple.getValue(0);
         __addWordToWordSet(splittedSentence);
-        int[] featureVector = __getFeatureVector(splittedSentence);
+        HashMap<String, Integer> featureVector = __getFeatureVector( Arrays.asList(splittedSentence));
         System.out.println(featureVector);
 
-        collector.emit(new Values(featureVector, _allWordSet));
+        collector.emit(new Values(featureVector));
     }
 
     @Override
