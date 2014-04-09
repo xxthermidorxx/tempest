@@ -55,11 +55,11 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        /** HACK: 無検査変換 */
+        /** HACK: 無検査キャスト */
         List<String> splittedSentence = (ArrayList) tuple.getValue(0);
 
         __addWordToWordSet(splittedSentence);
-        HashMap<String, Integer> featureVector = __getFeatureVector( splittedSentence);
+        HashMap<String, Integer> featureVector = __getFeatureVector(splittedSentence);
 
         collector.emit(new Values(featureVector));
     }
@@ -71,6 +71,6 @@ public class ExtractFeatureVectorBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("feature_vector", "all_word_set"));
+        declarer.declare(new Fields("feature_vector"));
     }
 }
